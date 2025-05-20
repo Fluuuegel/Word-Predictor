@@ -21,11 +21,12 @@ The `evaluate()` function measures the model's performance by estimating  **keys
 ### How to Deploy
 
 1. `git clone ...`
-2. **Create a virtual environment: **`python -m venv env`
-3. ```
+2. Download the dataset and arrange the folder as `.\data\c4-train.00000-of-01024.json`
+3. Create a virtual environment: `python -m venv env`
+4. ```
    $ env\Scripts\activate  # Windows
    $ . env/bin/activate  # Linux or MacOS
    ```
-4. `pip install flask`
-5. `python .\ngram\app.py`
-6. Check `[127.0.0.1](http://127.0.0.1:5000/)`
+5. `pip install flask`
+6. `python .\ngram\app.py`
+7. Check `http://127.0.0.1:5000/`
