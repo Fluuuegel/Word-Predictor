@@ -13,6 +13,8 @@
       });
       const data = await resp.json();
       document.getElementById("prediction").textContent = data.prediction;
+      document.getElementById("predicted_words").textContent = data.predicted_words;
+      
     }
   </script>
 </head>
@@ -28,6 +30,11 @@
   <p>
     <strong>Predicted next word:</strong>
     <span id="prediction" style="color: #007bff;"></span>
+  </p>
+
+  <p>
+    <strong> Transformer predictions:</strong>
+    <span id="predicted_words" style="color: #28a745;"></span>
   </p>
 </body>
 </html>

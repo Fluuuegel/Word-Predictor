@@ -27,6 +27,6 @@ The `evaluate()` function measures the model's performance by estimating  **keys
    $ env\Scripts\activate  # Windows
    $ . env/bin/activate  # Linux or MacOS
    ```
-5. `pip install flask`
+5. `pip install flask torch`
 6. `python .\ngram\app.py`
 7. Check `http://127.0.0.1:5000/`
