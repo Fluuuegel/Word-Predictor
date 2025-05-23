@@ -29,5 +29,5 @@ The `evaluate()` function measures the model's performance by estimating  **keys
    ```
 5. `pip install flask torch`
 6. install models on `https://drive.google.com/drive/folders/1ZQ-u-PDhZPt6Q-3vI2kn01nyRilZy-tw?usp=sharing`
-7. `python .\ngram\app.py`
+7. `python ./ngram/app.py`
 8. Check `http://127.0.0.1:5000/`
