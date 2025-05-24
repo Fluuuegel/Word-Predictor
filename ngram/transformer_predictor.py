@@ -30,7 +30,6 @@ def get_batch(source, i, bptt=35):
     seq_len = min(bptt, len(source) - 1 - i)
     data = source[i:i+seq_len]
     target = source[i+1:i+1+seq_len].reshape(-1)
-
     return data, target
 
 
@@ -74,6 +73,30 @@ def predict_next(model, text, vocab, inv_vocab, device, n_words=5):
     top_ids = torch.topk(torch.softmax(last_logits, dim=-1), k=n_words).indices
     return [inv_vocab[i.item()] for i in top_ids]
 
+def evaluate(model, data, vocab, inv_vocab, device):
+    # Compare the saved keystrokes proportion of various N-gram models on the same set of test texts.
+
+    saved = 0
+    total = 0
+    for i in tqdm(range(0, data.size(0) - 1, 35), desc="Evaluating", unit="batch"):
+        input_seq, target = get_batch(data, i)
+        last_word = target[-1]
+        # print(f"Last word: {last_word.shape}")
+        src_mask = model.generate_square_subsequent_mask(input_seq.size(0)).to(device)
+        with torch.no_grad():
+            output = model(input_seq.to(device), src_mask)
+        # print(output.shape)
+        last_logits = output[-1, :, :]
+        top_ids = torch.topk(torch.softmax(last_logits, dim=-1), k=3).indices
+        # print(f"top_ids: {top_ids.shape}")
+
+        real_word = inv_vocab[last_word.item()]
+        if last_word in top_ids:
+            saved += len(real_word) - 1
+        total += len(real_word)
+    return saved / total if total > 0 else 0
+    
+
 
 if __name__ == "__main__":
     shards = [f"../data/c4-train.000{i//10}{i%10}-of-01024.json" for i in range(1)]
@@ -81,7 +104,7 @@ if __name__ == "__main__":
     # print(f"Loaded {len(texts)} documents.")
     # Load and preprocess data
     vocab, inv_vocab, vocab_size, data = encode(" ".join(texts))
-    data = batchify(data, 32)
+    batch_data = batchify(data, 32)
     # print(f"Data shape: {data.shape}")
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -102,10 +125,15 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load("transformer_model.pth"))
 
     # Predict next words
-    while True:
-        prompt = input("Input your prompt (or 'exit'): ")
-        if prompt.lower() == 'exit':
-            break
+    # while True:
+    #     prompt = input("Input your prompt (or 'exit'): ")
+    #     if prompt.lower() == 'exit':
+    #         break
 
-        predictions = predict_next(model, prompt, vocab, inv_vocab, device)
-        print(f"Predicted next words: {predictions}")
+    #     predictions = predict_next(model, prompt, vocab, inv_vocab, device)
+    #     print(f"Predicted next words: {predictions}")
+
+    # Evaluate model
+    saved_proportion = evaluate(model, data, vocab, inv_vocab, device)
+    print(f"Proportion of saved keystrokes: {saved_proportion:.2%}")
+
