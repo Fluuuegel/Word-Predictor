@@ -57,8 +57,11 @@ def predict_next_word(models, prompt, n):
             else:
                 ctx = tuple(['<s>']*(k-1-len(tokens)) + tokens)
             counter = model_k.get(ctx, None)
+        # if counter and len(counter) > 0:
+        #     return counter.most_common(1)[0][0]
         if counter and len(counter) > 0:
-            return counter.most_common(1)[0][0]
+            # Return top 3 most common predictions
+            return [word for word, _ in counter.most_common(3)]
     return ""
 
 
@@ -72,7 +75,8 @@ def evaluate(models: Dict[int, Dict[Tuple[str, ...], Counter]],
     total = {n: 0 for n in n_values}
 
     # Cache: (order, context_tuple) -> predicted_word or None
-    best_cache: Dict[Tuple[int, Tuple[str, ...]], str] = {}
+    # best_cache: Dict[Tuple[int, Tuple[str, ...]], str] = {}
+    best_cache: Dict[Tuple[int, Tuple[str, ...]], List[str]] = {}
 
     def predict_from_tokens(tokens: List[str], idx: int, order: int) -> str:
         for k in range(order, 0, -1):
@@ -87,14 +91,18 @@ def evaluate(models: Dict[int, Dict[Tuple[str, ...], Counter]],
 
             key = (k, ctx)
             if key in best_cache:
-                pred = best_cache[key]
+                # pred = best_cache[key]
+                preds = best_cache[key]
             else:
                 counter = models[k].get(ctx)
-                pred = counter.most_common(1)[0][0] if counter else None
-                best_cache[key] = pred
+                # pred = counter.most_common(1)[0][0] if counter else None
+                preds = [word for word, _ in counter.most_common(3)] if counter else []
+                best_cache[key] = preds
 
-            if pred is not None:
-                return pred
+            # if pred is not None:
+            #     return pred
+            if preds:
+                return preds
         return ""
 
     for text in test_texts:
@@ -102,9 +110,13 @@ def evaluate(models: Dict[int, Dict[Tuple[str, ...], Counter]],
         for idx, actual in enumerate(tokens):
             for n in n_values:
                 total[n] += len(actual)
-                pred = predict_from_tokens(tokens, idx, n)
-                if pred == actual:
-                    saved[n] += len(actual) - 1
+                # pred = predict_from_tokens(tokens, idx, n)
+                # if pred == actual:
+                #     saved[n] += len(actual) - 1
+                preds = predict_from_tokens(tokens, idx, n)
+                if preds:
+                    if actual in preds:
+                        saved[n] += len(actual) - 1
 
     return {n: (saved[n] / total[n] if total[n] > 0 else 0.0)
             for n in n_values}
@@ -112,7 +124,7 @@ def evaluate(models: Dict[int, Dict[Tuple[str, ...], Counter]],
 
 if __name__ == '__main__':
 
-    shards = [f"../data/c4-train.000{i//10}{i%10}-of-01024.json" for i in range(1)]
+    shards = [f"../data/c4-train.000{i//10}{i%10}-of-01024.json" for i in range(10)]
     texts = load_and_preprocess_json_files(shards, max_chars_per_doc=10000)
 
     split = int(len(texts) * 0.8)

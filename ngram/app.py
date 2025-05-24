@@ -20,7 +20,8 @@ def predict():
     req = request.get_json()
     prompt = req.get("prompt", "")
     # use the 3-gram model; backoff handled internally
-    next_word = predict_next_word(models, prompt, n=max_order)
+    next_words = predict_next_word(models, prompt, n=max_order)
+    next_word = next_words[0] if next_words else ""
     return jsonify(prediction=next_word)
 
 if __name__ == "__main__":
