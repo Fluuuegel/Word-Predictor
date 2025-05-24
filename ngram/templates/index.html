@@ -12,8 +12,8 @@
         body: JSON.stringify({ prompt })
       });
       const data = await resp.json();
-      document.getElementById("prediction").textContent = data.prediction;
-      document.getElementById("predicted_words").textContent = data.predicted_words;
+      document.getElementById("ngram_prediction").textContent = data.ngram_prediction;
+      document.getElementById("transformer_prediction").textContent = data.transformer_prediction;
       
     }
   </script>
@@ -28,13 +28,13 @@
     style="width: 400px; padding: 8px;"
   />
   <p>
-    <strong>Predicted next word:</strong>
-    <span id="prediction" style="color: #007bff;"></span>
+    <strong>N-gram prediction:</strong>
+    <span id="ngram_prediction" style="color: #007bff;"></span>
   </p>
 
   <p>
     <strong> Transformer predictions:</strong>
-    <span id="predicted_words" style="color: #28a745;"></span>
+    <span id="transformer_prediction" style="color: #28a745;"></span>
   </p>
 </body>
 </html>

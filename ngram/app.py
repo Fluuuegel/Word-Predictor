@@ -48,12 +48,12 @@ def predict():
     # next_words = predict_next_word(models, prompt, n=max_order)
     # next_word = next_words[0] if next_words else ""
     # return jsonify(prediction=next_word)
-    next_words = predict_next_word(models, prompt, n=max_order)
-    next_word = next_words[0] if next_words else ""
+    ngram_predictions = predict_next_word(models, prompt, n=max_order)
+    ngram_prediction = ngram_predictions[0] if ngram_predictions else ""
     
     # use the transformer model; backoff handled internally
-    predicted_words = predict_next(model, prompt, vocab, inv_vocab, device)
-    return jsonify(prediction=next_word, predicted_words=predicted_words)
+    transformer_prediction = predict_next(model, prompt, vocab, inv_vocab, device)
+    return jsonify(ngram_prediction=ngram_prediction, transformer_prediction=transformer_prediction)
 
 if __name__ == "__main__":
     app.run(debug=False)
